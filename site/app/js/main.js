@@ -7,6 +7,7 @@ import * as store from './store.js';
 import { SOURCES, sourceName, searchSource, searchCompanies, jobDetail, loadCompanies } from './api.js';
 import { PROVIDERS, provider, activeModel, complete, parseJsonObject, AiError } from './ai.js';
 import { evaluationPrompt, cvPrompt, letterPrompt, unsupportedFigures, reportToMarkdown } from './prompts.js';
+import { rankJobs } from './rank.js';
 
 const ui = store.read('ui', {});
 const state = {
@@ -160,10 +161,6 @@ function renderSearch(query) {
     h('label', { class: 'sfield' }, icon('pin'), lInput),
     h('button', { class: 'btn btn-primary btn-lg', type: 'submit' }, 'Search jobs'));
 
-  const seg = (key, options) => h('div', { class: 'segmented', role: 'group' }, options.map(([v, label]) => h('button', {
-    type: 'button', class: String(state.params[key]) === v ? 'active' : '', onclick: () => { state.params[key] = v; if (hasQuery()) runSearch(1); else renderSearch(new URLSearchParams()); },
-  }, label)));
-
   view().replaceChildren(
     h('section', { class: 'hero' }, h('div', { class: 'hero-inner' },
       h('h1', {}, 'Find your next role'),
@@ -173,17 +170,50 @@ function renderSearch(query) {
     h('div', { class: 'layout' },
       h('section', { 'aria-live': 'polite' },
         h('div', { class: 'results-head' }, h('div', {}, h('h2', { id: 'resultsTitle' }), h('p', { class: 'muted', id: 'resultsMeta' }))),
-        h('div', { class: 'filterbar' },
-          seg('days', [['', 'Any time'], ['1', '24h'], ['7', '7 days'], ['30', '30 days']]),
-          seg('sort', [['relevance', 'Relevance'], ['date', 'Newest']]),
-          seg('remote', [['', 'All'], ['remote', 'Remote'], ['hybrid', 'Hybrid']])),
+        h('div', { class: 'filterbar', id: 'filters' }),
         h('div', { class: 'job-list', id: 'results' }),
         h('div', { class: 'load-more' }, h('button', { type: 'button', class: 'btn btn-secondary', id: 'loadMore', hidden: true, onclick: () => runSearch(state.page + 1) }, 'Load more'))),
       h('section', { class: 'detail', id: 'detail', 'aria-label': 'Job details' })));
   renderChips();
+  renderFilters();
   renderResults();
   renderDetailPanel($('#detail'), state.selected);
   if (hasQuery() && !state.jobs.length && !state.loading) runSearch(1);
+}
+
+// Takes whatever is in the search boxes now, so a filter click after typing
+// a new query searches the new query, not the last submitted one.
+function syncInputs() {
+  const q = $('#q'), l = $('#loc');
+  if (q) state.params.q = q.value.trim();
+  if (l) state.params.location = l.value.trim();
+}
+
+function renderFilters() {
+  const wrap = $('#filters');
+  if (!wrap) return;
+  const seg = (key, label, options) => h('div', { class: 'segmented', role: 'group', 'aria-label': label }, options.map(([v, text]) => {
+    const on = String(state.params[key] ?? '') === v;
+    return h('button', {
+      type: 'button', class: on ? 'active' : '', 'aria-pressed': String(on),
+      onclick: () => {
+        if (on) return;
+        state.params[key] = v;
+        syncInputs();
+        renderFilters();
+        if (!hasQuery()) return;
+        // Sorting and work mode only reorder or narrow what is already here;
+        // the date window changes what the boards return, so it searches again.
+        if (key === 'days') runSearch(1);
+        else if (key === 'remote' && state.enabled.has('freehire')) runSearch(1);
+        else { state.jobs = rankJobs(state.all || state.jobs, state.params); writeHash(); renderResults(); }
+      },
+    }, text);
+  }));
+  wrap.replaceChildren(
+    seg('days', 'Date posted', [['', 'Any time'], ['1', '24h'], ['7', '7 days'], ['30', '30 days']]),
+    seg('sort', 'Sort by', [['relevance', 'Relevance'], ['date', 'Newest']]),
+    seg('remote', 'Work mode', [['', 'All'], ['remote', 'Remote'], ['hybrid', 'Hybrid']]));
 }
 
 const hasQuery = () => !!(state.params.q || state.params.location);
@@ -225,20 +255,18 @@ function merge(page, fresh) {
     seen.set(k, c);
     out.push(c);
   };
-  if (page > 1) state.jobs.forEach(add);
-  const lists = SOURCES.map((s) => fresh[s.id] || []);
-  const interleaved = [];
-  for (let i = 0; lists.some((l) => i < l.length); i++) for (const l of lists) if (i < l.length) interleaved.push(l[i]);
-  if (state.params.sort === 'date') interleaved.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  interleaved.forEach(add);
-  return out;
+  if (page > 1) (state.all || []).forEach(add);
+  // Keep each board's own position as a tie-breaker for the shared scoring.
+  for (const s of SOURCES) (fresh[s.id] || []).forEach((j, i) => add({ ...j, rank: j.rank ?? i + (page - 1) * 25 }));
+  state.all = out;
+  return rankJobs(out, state.params);
 }
 
 async function runSearch(page) {
   const seq = ++state.seq;
   state.page = page;
   state.loading = true;
-  if (page === 1) { state.jobs = []; state.selected = null; writeHash(); renderDetailPanel($('#detail'), null); }
+  if (page === 1) { state.jobs = []; state.all = []; state.selected = null; writeHash(); renderDetailPanel($('#detail'), null); }
   for (const id of state.enabled) state.status[id] = { status: 'loading' };
   renderChips(); renderResults();
   const fresh = {};
@@ -269,19 +297,21 @@ function renderResults() {
     title.textContent = 'Start a search';
     meta.textContent = 'Search every board at once, then save, evaluate and tailor.';
     list.replaceChildren(emptyState('search', 'One search, every board', 'Results are merged and de-duplicated so you read each posting once.',
-      h('div', { class: 'suggestions' }, ['Data engineer', 'Product manager', 'Frontend developer', 'UX designer', 'Machine learning'].map((ex) => h('button', { type: 'button', class: 'btn btn-secondary', onclick: () => { state.params.q = ex; runSearch(1); renderSearch(new URLSearchParams()); } }, ex)))));
+      h('div', { class: 'suggestions' }, ['Data engineer', 'Product manager', 'Frontend developer', 'UX designer', 'Machine learning'].map((ex) => h('button', { type: 'button', class: 'btn btn-secondary', onclick: () => { state.params.q = ex; renderSearch(new URLSearchParams()); runSearch(1); } }, ex)))));
     $('#loadMore').hidden = true;
     return;
   }
   const what = [state.params.q, state.params.location && `in ${state.params.location}`].filter(Boolean).join(' ');
   const ok = Object.entries(state.status).filter(([id, s]) => state.enabled.has(id) && s.status === 'ok').length;
   title.textContent = state.loading && !state.jobs.length ? 'Searching…' : `${state.jobs.length.toLocaleString()} job${state.jobs.length === 1 ? '' : 's'}`;
-  meta.textContent = state.loading ? `Looking for “${what}”…` : `for “${what}” · ${ok} of ${state.enabled.size} sources answered`;
+  const modeNote = state.params.remote ? ` · ${cap(state.params.remote)} only, judged from each posting's work-mode data or its title and location` : '';
+  meta.textContent = state.loading ? `Looking for “${what}”…` : `for “${what}” · ${ok} of ${state.enabled.size} sources answered${modeNote}`;
   const cards = state.jobs.map((j) => jobCard(j, { selected: state.selected?.key === j.key, onOpen: () => selectJob(j), after: renderResults }));
   if (state.loading) cards.push(...skeletons(state.jobs.length ? 2 : 6));
   else if (!state.jobs.length) {
     const errs = Object.entries(state.status).filter(([id, s]) => state.enabled.has(id) && s.status === 'error');
-    cards.push(emptyState('inbox', 'No matching jobs', errs.length ? `Some sources failed: ${errs.map(([id, s]) => `${sourceName(id)} (${s.message})`).join('; ')}` : 'Try a broader keyword, another location, or a longer date range.'));
+    if (state.all?.length && state.params.remote) cards.push(emptyState('inbox', `No ${state.params.remote} jobs in these results`, `${state.all.length} jobs matched, but none say they are ${state.params.remote}. Choose "All" to see them.`));
+    else cards.push(emptyState('inbox', 'No matching jobs', errs.length ? `Some sources failed: ${errs.map(([id, s]) => `${sourceName(id)} (${s.message})`).join('; ')}` : 'Try a broader keyword, another location, or a longer date range.'));
   }
   list.replaceChildren(...cards);
   $('#loadMore').hidden = state.loading || !state.hasMore || !state.jobs.length;

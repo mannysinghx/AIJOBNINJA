@@ -3,7 +3,7 @@
 //
 //   node scripts/dev-web.mjs            -> http://127.0.0.1:4330
 //
-// Serves site/ as static files (with vercel.json's cleanUrls and headers) and
+// Serves site/ as static files (with vercel.json's cleanUrls, redirects and headers) and
 // routes /api/<name> to the GET handler exported by api/<name>.mjs, the same
 // way Vercel runs them. Loopback only.
 
@@ -42,6 +42,8 @@ createServer(async (req, res) => {
       res.end(Buffer.from(await out.arrayBuffer()));
       return;
     }
+    const redirect = (config.redirects || []).find((r) => r.source === url.pathname);
+    if (redirect) { res.writeHead(redirect.permanent ? 308 : 307, { ...headers, Location: redirect.destination }).end(); return; }
     const file = await staticFile(url.pathname === '/' ? 'index.html' : url.pathname);
     if (!file) { res.writeHead(404, { ...headers, 'Content-Type': 'text/plain' }).end('Not found'); return; }
     res.writeHead(200, { ...headers, 'Content-Type': file.type, 'Cache-Control': 'no-cache' }).end(file.body);

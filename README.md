@@ -69,7 +69,7 @@ It reformulates your CV; it must never fabricate it. A check in code stops a PDF
 
 ## Use it in your browser
 
-**https://aijobninja.vercel.app/app** runs the core of AIJobNinja with nothing to install:
+**https://aijobninja.vercel.app** opens straight into the app and runs the core of AIJobNinja with nothing to install (the project overview lives at [/about](https://aijobninja.vercel.app/about)):
 
 - **Search** Jobindex, Jobnet, Jobdanmark, freehire and 80+ company career boards (Greenhouse, Ashby, Lever, Workable) in one box.
 - **Track** saved jobs, application status and notes, with CSV and JSON export.
@@ -88,7 +88,7 @@ Bring your own AI key. It is stored in your browser and sent straight to the pro
 
 Meta's `muse-spark-1.3-contributor` tier costs 0.10 / 0.20 but lets Meta train on what you send, including your CV, so it is opt-in only. Your profile, tracker and keys live in your browser's storage; export a backup from the Profile page to move them.
 
-The website code is `site/` (pages) and `api/` (Vercel functions for job search). Run it locally with `node scripts/dev-web.mjs` and open http://127.0.0.1:4330/app. The full agent workflow below still runs locally in your AI CLI.
+The website code is `site/` (pages) and `api/` (Vercel functions for job search). Run it locally with `node scripts/dev-web.mjs` and open http://127.0.0.1:4330. The full agent workflow below still runs locally in your AI CLI.
 
 ## Quick Start
 
@@ -409,7 +409,7 @@ aijobninja/
 ├── fonts/                       # Space Grotesk + DM Sans
 ├── docs/                        # Setup, customization, budget guide, architecture
 ├── modules/job-finder/          # Nordic portal CLIs, search UI, LaTeX workflow
-├── site/                        # Website: landing page and the browser app (site/app)
+├── site/                        # Website: the browser app (index.html + site/app) and /about
 ├── api/                         # Vercel functions: job search for the website
 └── examples/                    # Sample CV, report, proof points
 ```

@@ -28,7 +28,7 @@
       ]
     },
     {
-      "source": "/app/(.*)",
+      "source": "/",
       "headers": [
         {
           "key": "Cache-Control",
@@ -50,5 +50,17 @@
     "api/detail.mjs": {
       "maxDuration": 30
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/app",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/app/",
+      "destination": "/",
+      "permanent": false
+    }
+  ]
 }
