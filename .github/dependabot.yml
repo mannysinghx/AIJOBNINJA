@@ -5,6 +5,14 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    ignore:
+      # Kept on 6.x on purpose. undici 8 requires Node >= 22.19, above the
+      # supported floor (22.13, see lib/node-floor.mjs), and 7 has not been
+      # evaluated. providers/_connection-scope.mjs loads undici optionally,
+      # so a major that fails to load would silently turn the connection-scope
+      # fix off instead of failing. Revisit when the floor moves.
+      - dependency-name: "undici"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "gomod"
     directory: "/dashboard"
