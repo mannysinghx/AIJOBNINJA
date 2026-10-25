@@ -67,6 +67,29 @@ It reformulates your CV; it must never fabricate it. A check in code stops a PDF
 
 </details>
 
+## Use it in your browser
+
+**https://aijobninja.vercel.app/app** runs the core of AIJobNinja with nothing to install:
+
+- **Search** Jobindex, Jobnet, Jobdanmark, freehire and 80+ company career boards (Greenhouse, Ashby, Lever, Workable) in one box.
+- **Track** saved jobs, application status and notes, with CSV and JSON export.
+- **Evaluate** a posting against your CV (1-5 score, requirement-by-requirement match, gaps, red flags, interview plan) and **write** a tailored CV and cover letter, printable to PDF. Figures that are not in your CV are flagged before you send anything.
+
+Bring your own AI key. It is stored in your browser and sent straight to the provider you pick, never to an AIJobNinja server. Each provider starts on its cheapest model:
+
+| Provider | Default model | USD per 1M tokens (in / out) |
+|---|---|---|
+| Qwen (Alibaba Cloud, Singapore) | `qwen3.7-flash` | 0.03 / 0.13 |
+| OpenAI | `gpt-5-nano` | 0.05 / 0.40 |
+| Google Gemini | `gemini-2.5-flash-lite` | 0.10 / 0.40 |
+| Anthropic Claude | `claude-haiku-5-5` | 0.10 / 0.50 |
+| DeepSeek | `deepseek-flash` | 0.15 / 0.60 (off-peak) |
+| Meta Muse | `muse-spark-1.3` | 1.25 / 4.25 |
+
+Meta's `muse-spark-1.3-contributor` tier costs 0.10 / 0.20 but lets Meta train on what you send, including your CV, so it is opt-in only. Your profile, tracker and keys live in your browser's storage; export a backup from the Profile page to move them.
+
+The website code is `site/` (pages) and `api/` (Vercel functions for job search). Run it locally with `node scripts/dev-web.mjs` and open http://127.0.0.1:4330/app. The full agent workflow below still runs locally in your AI CLI.
+
 ## Quick Start
 
 ```bash
@@ -386,7 +409,8 @@ aijobninja/
 ├── fonts/                       # Space Grotesk + DM Sans
 ├── docs/                        # Setup, customization, budget guide, architecture
 ├── modules/job-finder/          # Nordic portal CLIs, search UI, LaTeX workflow
-├── site/                        # Static landing page (served by Vercel, see vercel.json)
+├── site/                        # Website: landing page and the browser app (site/app)
+├── api/                         # Vercel functions: job search for the website
 └── examples/                    # Sample CV, report, proof points
 ```
 

@@ -1,0 +1,4 @@
+{"data":[
+{"public_slug":"backend-engineer-acme-ab12cd34","source":"greenhouse","external_id":"acme:1","url":"https://boards.greenhouse.io/acme/jobs/1","title":"Python &amp; Data Engineer ","company":"Acme","company_slug":"acme","location":"Copenhagen, Denmark","description":"## About\n**Acme** builds   data tools.\n\nYou will write Python.","skills":["python","sql","airflow","dbt","spark","kafka","aws"],"work_mode":"hybrid","regions":["eu"],"countries":["dk"],"cities":["Copenhagen"],"posted_at":"2099-07-06T00:00:00Z","created_at":"2099-07-06T15:00:00Z","enrichment":{}},
+{"public_slug":"old-role-beta-zz99","source":"lever","external_id":"beta:2","url":"https://jobs.lever.co/beta/2","title":"   ","company":"","company_slug":"","location":"","description":"","skills":[],"regions":[],"countries":[],"cities":[],"posted_at":"2020-01-01T00:00:00Z","created_at":null,"enrichment":{}}
+],"meta":{"total":30,"limit":25,"offset":0}}

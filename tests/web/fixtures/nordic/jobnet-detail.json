@@ -1,0 +1,4 @@
+{"id":"e5a1c2d4-1111-4f00-9a00-000000000001","title":"Data Engineer","body":"<p>Vi søger en <strong>data engineer</strong>.</p><ul><li>Python</li></ul>","publicationDateTime":"2099-01-02T00:00:00","unpublicationDateTime":null,"hasLogo":false,"logoUrl":null,
+"employer":{"cvrNumber":"12345678","pNumber":null,"name":"Acme A/S","hasCompanyLogo":false},
+"job":{"type":"Ordinaert","address":{"streetName":"Examplevej 1","city":"København Ø","postalCode":"2100","municipality":"København","countryCode":"DK","countryName":"Danmark"},"isPartTime":false},
+"application":{"deadlineDate":"1900-01-01T00:00:00","availablePositions":1,"contactPersons":[],"url":"https://careers.acme.example/jobs/1","urlText":null,"isApplicationDeadlineASAP":true}}

@@ -66,8 +66,11 @@ const EXCLUDES = [
   'renovate.json',
   'flake.lock',
   'flake.nix',
-  // Vercel config for the public landing page (site/), never part of an install.
+  // Website tooling (Vercel config, board-list generator, local dev server):
+  // used to build and test the public site, never part of an install.
   'vercel.json',
+  'scripts/build-web-companies.mjs',
+  'scripts/dev-web.mjs',
   'batch/logs/.gitkeep',
   'batch/tracker-additions/.gitkeep',
   'interview-prep/.gitkeep',
@@ -105,9 +108,9 @@ const REPO_ONLY = [];
 // shipped by update-system.mjs, never in the npm package. Excluding it here is
 // part of that isolation contract, not a coverage gap. modules/ holds
 // self-contained subprojects (job-finder) with their own tests and tooling,
-// outside the updater for the same reason, and so is site/, the static
-// landing page Vercel serves.
-const EXCLUDE_PREFIXES = ['web/', 'modules/', 'site/'];
+// outside the updater for the same reason, and so are site/ and api/, the
+// website Vercel serves (static pages and serverless functions).
+const EXCLUDE_PREFIXES = ['web/', 'modules/', 'site/', 'api/'];
 
 function covered(file) {
   // If explicitly excluded, it is covered
