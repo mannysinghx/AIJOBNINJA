@@ -14,41 +14,38 @@ permissions:
 
 jobs:
   release-please:
+    # Off until the repository opts in, so pushes do not produce failing runs.
+    # To turn releases on:
+    #   1. Settings -> Actions -> General -> Workflow permissions: tick
+    #      "Allow GitHub Actions to create and approve pull requests"
+    #      (release-please opens its release PR with GITHUB_TOKEN).
+    #   2. Settings -> Secrets and variables -> Actions -> Variables: add
+    #      RELEASE_PLEASE = enabled.
+    if: ${{ vars.RELEASE_PLEASE == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
-      # release-please opens and updates its release PR with a GitHub App token,
-      # not GITHUB_TOKEN. This repository does not let Actions create pull
-      # requests, and that stays off (the same setting would let workflows
-      # approve them), so with GITHUB_TOKEN the run failed at "create pull
-      # request" and no release could be cut. The App (secrets RELEASE_APP_ID,
-      # its client ID, and RELEASE_APP_PRIVATE_KEY) has Contents, Pull requests
-      # and Issues read/write on this repository only. Side effects worth
-      # knowing: its release PR runs CI like any other PR, and the releases it
-      # creates trigger `on: release` workflows (sbom.yml), which releases
-      # created with GITHUB_TOKEN never did.
-      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        id: app-token
-        if: ${{ github.event_name == 'push' }}
-        with:
-          client-id: ${{ secrets.RELEASE_APP_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+      # GITHUB_TOKEN, not an App token: no extra secrets to manage. Releases
+      # created with GITHUB_TOKEN do not trigger other workflows, and the
+      # release PR it opens does not start CI on its own; run the checks on
+      # that PR manually (or push to its branch) before merging.
       - uses: googleapis/release-please-action@v5
         id: release
         if: ${{ github.event_name == 'push' }}
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
       # Publish the npm scaffolder when a aijobninja release was just created,
-      # OR on a manual dispatch (to recover from a failed publish). Kept in this
-      # job so the publish stays tied to the run that cut the release. The
-      # checkout also runs when only the `web` component was released: the
-      # Latest step at the bottom reads the manifest from it.
+      # OR on a manual dispatch (to recover from a failed publish), but only
+      # when the repository also sets NPM_PUBLISH = enabled and a trusted
+      # publisher for the package is configured on npmjs.com. The checkout
+      # also runs when only the `web` component was released: the Latest step
+      # at the bottom reads the manifest from it.
       - uses: actions/checkout@v7
         if: ${{ steps.release.outputs.releases_created == 'true' || github.event_name == 'workflow_dispatch' }}
       - uses: actions/setup-node@v7
-        if: ${{ steps.release.outputs.release_created || github.event_name == 'workflow_dispatch' }}
+        if: ${{ vars.NPM_PUBLISH == 'enabled' && (steps.release.outputs.release_created || github.event_name == 'workflow_dispatch') }}
         with:
           node-version: 24
           registry-url: "https://registry.npmjs.org"
@@ -56,19 +53,17 @@ jobs:
       # id-token against the trusted publisher configured on npmjs.com — no token.
       # setup-node ships an older npm, so upgrade before publishing.
       - name: Upgrade npm for trusted publishing
-        if: ${{ steps.release.outputs.release_created || github.event_name == 'workflow_dispatch' }}
+        if: ${{ vars.NPM_PUBLISH == 'enabled' && (steps.release.outputs.release_created || github.event_name == 'workflow_dispatch') }}
         run: npm install -g npm@latest
       - name: Publish scaffolder to npm
-        if: ${{ steps.release.outputs.release_created || github.event_name == 'workflow_dispatch' }}
+        if: ${{ vars.NPM_PUBLISH == 'enabled' && (steps.release.outputs.release_created || github.event_name == 'workflow_dispatch') }}
         run: npm publish --provenance --access public
         working-directory: scaffolder
 
       # GitHub marks whichever release was created LAST as "Latest", and in this
-      # manifest the `web` component is created after `aijobninja`. Result: the
-      # repository's releases page has never once pointed at the main package —
-      # every aijobninja release since the web component was added showed
-      # `web-vX.Y.Z` as the latest version to anyone landing there. Verified
-      # 28-jul: 0 of 20 aijobninja releases carried the flag.
+      # manifest the `web` component is created after `aijobninja`, so without
+      # this step the releases page would point at `web-vX.Y.Z` instead of the
+      # main package.
       #
       # Re-assert it explicitly so ordering stops deciding. Reads the version
       # from the manifest rather than an action output, so it cannot drift from
