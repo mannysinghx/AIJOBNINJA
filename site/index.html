@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIJobNinja · Your AI job search, on your machine</title>
+  <meta name="description" content="Open-source AI job search that runs inside your AI coding CLI. Scans job boards, scores every listing against your real CV, tailors your CV and cover letter, and tracks every application. You press Submit.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="AIJobNinja">
+  <meta property="og:description" content="Your AI job search, on your machine. Open source, local-first, human-in-the-loop.">
+  <meta property="og:image" content="/logo.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="AIJobNinja home">
+        <img src="/logo.svg" alt="" width="30" height="30">
+        <span>AIJob<b>Ninja</b></span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#job-finder">Job Finder</a>
+        <a href="#start">Get started</a>
+      </nav>
+      <a class="btn btn-ghost-light" href="https://github.com/mannysinghx/AIJOBNINJA">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="gh"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.41-2.7 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Open source · Local-first · You stay in control</p>
+          <h1>Your AI job search, <span class="accent">on your machine.</span></h1>
+          <p class="lede">Paste a job. AIJobNinja checks it is still open, scores it against your real CV, tailors your CV and drafts your answers. <strong>You press Submit.</strong></p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#start">Get started</a>
+            <a class="btn btn-ghost-light" href="https://github.com/mannysinghx/AIJOBNINJA">View on GitHub</a>
+          </div>
+          <p class="fine">Runs in Claude Code, Codex, OpenCode, Gemini / Antigravity, Qwen, Grok and more. No account. No telemetry.</p>
+        </div>
+
+        <div class="terminal" aria-label="Example AIJobNinja session">
+          <div class="term-bar"><i></i><i></i><i></i><span>claude · ~/AIJOBNINJA</span></div>
+          <pre class="term-body"><span class="p">&gt;</span> /aijobninja https://jobs.example.com/senior-data-engineer
+
+<span class="dim">✓ Posting is live (ATS API, 0 tokens)</span>
+<span class="dim">✓ Evaluated against cv.md · report 042</span>
+
+  <b>Senior Data Engineer</b> · Example Corp · Copenhagen
+  Score   <span class="score">4.4 / 5</span>   <span class="tag ok">Apply</span>
+  Match   Python, Spark, Airflow, dbt <span class="dim">(4 of 5 must-haves)</span>
+  Gap     Kafka in production <span class="dim">(say so, don't invent it)</span>
+  Legit   <span class="tag ok">active</span> employer confirmed
+
+<span class="dim">→ output/cv-042-example-corp.pdf   ATS check 96/100</span>
+<span class="dim">→ cover letter drafted · tracker row #42 added</span>
+
+<span class="p">&gt;</span> <span class="cursor"></span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="strip" aria-label="Guarantees">
+      <div class="wrap strip-grid">
+        <div><b>Never auto-submits</b><span>It drafts every field. You review and click.</span></div>
+        <div><b>Never fabricates</b><span>Facts not in your CV are blocked from the PDF.</span></div>
+        <div><b>Never phones home</b><span>Your data goes only to the AI provider you chose.</span></div>
+        <div><b>Talks you out of weak fits</b><span>Below 4.0/5 it recommends you skip.</span></div>
+      </div>
+    </section>
+
+    <section id="how" class="section">
+      <div class="wrap">
+        <p class="eyebrow center">How it works</p>
+        <h2 class="center">From job link to a tailored application, in one conversation</h2>
+        <ol class="steps">
+          <li>
+            <span class="num">1</span>
+            <h3>Find</h3>
+            <p>A zero-token scanner reads 100+ company boards and 55+ job-board feeds and filters them by your target titles and locations.</p>
+          </li>
+          <li>
+            <span class="num">2</span>
+            <h3>Evaluate</h3>
+            <p>Every listing gets an A–H report: CV match, level, comp research, red flags and a posting-legitimacy check, with a 1–5 score.</p>
+          </li>
+          <li>
+            <span class="num">3</span>
+            <h3>Tailor</h3>
+            <p>An ATS-readable CV and a cover letter built only from your own experience, fact-checked before the PDF is written.</p>
+          </li>
+          <li>
+            <span class="num">4</span>
+            <h3>Track</h3>
+            <p>Status, follow-ups, interview prep and outcomes live in plain files you own, with a terminal dashboard on top.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="features" class="section alt">
+      <div class="wrap">
+        <p class="eyebrow center">Features</p>
+        <h2 class="center">Everything a serious search needs</h2>
+        <div class="cards">
+          <article class="card">
+            <div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+            <h3>Portal scanner</h3>
+            <p>Greenhouse, Lever, Ashby, Workday and more, straight from public APIs. Dead postings are dropped before they cost you a minute.</p>
+          </article>
+          <article class="card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/></svg></div>
+            <h3>Structured scoring</h3>
+            <p>One rubric for every role, weighted by what the posting actually requires, so you compare offers on the same scale.</p>
+          </article>
+          <article class="card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></div>
+            <h3>CVs and cover letters</h3>
+            <p>Tailored per job in HTML-to-PDF or LaTeX, with an ATS parse check and keyword coverage that never stuffs.</p>
+          </article>
+          <article class="card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <h3>Reach the right person</h3>
+            <p>Finds the hiring manager, recruiter or a peer on the team and drafts a short note. It never sends it.</p>
+          </article>
+          <article class="card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <h3>Interview suite</h3>
+            <p>Prep plans, practice questions with feedback, debriefs and a STAR story bank that grows with every application.</p>
+          </article>
+          <article class="card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <h3>Offer stage</h3>
+            <p>A clause-by-clause contract companion, a lawyer question list and a salary-gap analysis grounded in real numbers.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="job-finder" class="section">
+      <div class="wrap split">
+        <div>
+          <p class="eyebrow">Job Finder module</p>
+          <h2>One search box across the Nordic job boards</h2>
+          <p>Jobindex, Jobnet, Jobdanmark and Akademikernes Jobbank, plus LinkedIn public listings and freehire. Results are merged and de-duplicated, full postings open side by side, and your shortlist stays on your machine.</p>
+          <ul class="ticks">
+            <li>Zero dependencies beyond Bun, no CDN, no hosted search</li>
+            <li>Saved jobs with notes, CSV export, applications pipeline</li>
+            <li>LaTeX workflow with a second agent reviewing every draft</li>
+          </ul>
+          <a class="link" href="https://github.com/mannysinghx/AIJOBNINJA/tree/main/modules/job-finder">Read the Job Finder guide →</a>
+        </div>
+        <div class="mock" aria-hidden="true">
+          <div class="mock-top">
+            <span class="mock-search">Data engineer</span><span class="mock-loc">Copenhagen</span><span class="mock-btn">Search jobs</span>
+          </div>
+          <div class="mock-chips"><i class="on">Jobindex 1,799</i><i class="on">Jobnet 26</i><i class="on">LinkedIn 10</i><i class="on">freehire 30</i></div>
+          <div class="mock-card sel"><b>HA</b><div><strong>Product Developer</strong><span>HAY ApS · København K</span><em>Jobindex</em><em class="warn">Closes in 6 days</em></div></div>
+          <div class="mock-card"><b class="c2">KS</b><div><strong>PhD in Visual Computing and AI</strong><span>KU Science · København Ø</span><em>Jobnet</em><em class="new">New</em></div></div>
+          <div class="mock-card"><b class="c3">PP</b><div><strong>Backend (Python) Developer</strong><span>PayGap · Copenhagen</span><em>LinkedIn</em></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="start" class="section alt">
+      <div class="wrap narrow">
+        <p class="eyebrow center">Get started</p>
+        <h2 class="center">Up and running in two minutes</h2>
+        <div class="code">
+          <button type="button" class="copy" data-copy="git clone https://github.com/mannysinghx/AIJOBNINJA.git&#10;cd AIJOBNINJA && npm install&#10;claude">Copy</button>
+<pre><span class="dim"># 1. Get the code</span>
+git clone https://github.com/mannysinghx/AIJOBNINJA.git
+cd AIJOBNINJA &amp;&amp; npm install
+
+<span class="dim"># 2. Open your AI CLI in the folder and say hi</span>
+claude   <span class="dim"># or codex · opencode · qwen · agy · grok</span></pre>
+        </div>
+        <p class="center muted">On first launch it asks for your CV, target roles and deal-breakers in chat. Nothing to configure by hand.</p>
+        <div class="cta-row center-row">
+          <a class="btn btn-primary" href="https://github.com/mannysinghx/AIJOBNINJA#quick-start">Read the setup guide</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="#top"><img src="/logo.svg" alt="" width="24" height="24"><span>AIJob<b>Ninja</b></span></a>
+      <p>Open source under the MIT license. A local tool, not a hosted service: your data stays yours.</p>
+      <a href="https://github.com/mannysinghx/AIJOBNINJA">GitHub</a>
+    </div>
+  </footer>
+</body>
+</html>

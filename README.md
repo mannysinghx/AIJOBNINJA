@@ -386,6 +386,7 @@ aijobninja/
 ├── fonts/                       # Space Grotesk + DM Sans
 ├── docs/                        # Setup, customization, budget guide, architecture
 ├── modules/job-finder/          # Nordic portal CLIs, search UI, LaTeX workflow
+├── site/                        # Static landing page (served by Vercel, see vercel.json)
 └── examples/                    # Sample CV, report, proof points
 ```
 
