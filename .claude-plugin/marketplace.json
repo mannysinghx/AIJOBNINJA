@@ -1,0 +1,20 @@
+{
+  "name": "aijobninja",
+  "metadata": {
+    "description": "Open-source AI job search that runs locally in your AI coding CLI: scan job portals, evaluate listings into a structured A-H report with a 1-5 score, tailor your CV, track applications",
+    "version": "1.0.0"
+  },
+  "owner": {
+    "name": "mannysinghx",
+    "url": "https://github.com/mannysinghx"
+  },
+  "plugins": [
+    {
+      "name": "aijobninja",
+      "source": "./",
+      "description": "Open-source AI job search that runs locally in your AI coding CLI: scan job portals, evaluate listings into a structured A-H report with a 1-5 score, tailor your CV, track applications",
+      "category": "productivity",
+      "version": "1.0.0"
+    }
+  ]
+}

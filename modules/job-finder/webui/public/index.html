@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIJobNinja</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/search" aria-label="AIJobNinja home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" class="brand-bg"/>
+          <path d="M11 12V10.5A2.5 2.5 0 0 1 13.5 8h5A2.5 2.5 0 0 1 21 10.5V12" class="brand-line"/>
+          <rect x="7" y="12" width="18" height="12" rx="2.5" class="brand-line"/>
+          <path d="M7 17.5h18" class="brand-line"/>
+        </svg>
+        <span class="brand-text">AIJobNinja</span>
+      </a>
+      <nav class="tabs" aria-label="Main">
+        <a href="#/search" data-route="search">Search</a>
+        <a href="#/saved" data-route="saved">Saved <span class="pill" id="savedCount">0</span></a>
+        <a href="#/applications" data-route="applications">Applications</a>
+      </nav>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== SEARCH ===================== -->
+  <main id="view-search" class="view">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1>Find your next role</h1>
+        <p class="hero-sub">One search across Jobindex, Jobnet, Jobdanmark, Akademikernes Jobbank, LinkedIn and freehire. Runs entirely on your machine.</p>
+        <form id="searchForm" class="searchbar" role="search" autocomplete="off">
+          <label class="field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="sr-only">Keywords</span>
+            <input id="q" name="q" type="search" placeholder="Job title, skill or company" maxlength="120">
+          </label>
+          <span class="divider" aria-hidden="true"></span>
+          <label class="field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            <span class="sr-only">Location</span>
+            <input id="location" name="location" type="text" placeholder="City, postal code or country code" maxlength="80">
+          </label>
+          <button class="btn btn-primary btn-lg" type="submit">Search jobs</button>
+        </form>
+        <div class="portal-chips" id="portalChips" aria-label="Job portals"></div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <aside class="filters" id="filters" aria-label="Filters">
+        <div class="filter-head">
+          <h2>Filters</h2>
+          <button type="button" class="link-btn" id="resetFilters">Reset</button>
+        </div>
+        <fieldset>
+          <legend>Date posted</legend>
+          <div class="segmented" data-filter="days">
+            <button type="button" data-value="">Any</button>
+            <button type="button" data-value="1">24h</button>
+            <button type="button" data-value="7">7d</button>
+            <button type="button" data-value="14">14d</button>
+            <button type="button" data-value="30">30d</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Work mode</legend>
+          <div class="segmented" data-filter="remote">
+            <button type="button" data-value="">All</button>
+            <button type="button" data-value="remote">Remote</button>
+            <button type="button" data-value="hybrid">Hybrid</button>
+            <button type="button" data-value="onsite">Office</button>
+          </div>
+          <p class="hint">Applied by LinkedIn, freehire and Jobbank.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Sort by</legend>
+          <div class="segmented" data-filter="sort">
+            <button type="button" data-value="relevance">Relevance</button>
+            <button type="button" data-value="date">Newest</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Refine results</legend>
+          <label class="mini-field">
+            <span class="sr-only">Filter loaded results</span>
+            <input id="refine" type="search" placeholder="Filter by word…">
+          </label>
+          <label class="check"><input type="checkbox" id="hideExpired" checked> Hide expired deadlines</label>
+          <label class="check"><input type="checkbox" id="onlyDeadline"> Only with a deadline</label>
+        </fieldset>
+        <fieldset>
+          <legend>Sources</legend>
+          <ul class="source-list" id="sourceList"></ul>
+        </fieldset>
+      </aside>
+
+      <section class="results" aria-live="polite">
+        <div class="results-head">
+          <div>
+            <h2 id="resultsTitle">Start a search</h2>
+            <p class="muted" id="resultsMeta">Enter a keyword to search every portal at once.</p>
+          </div>
+          <button type="button" class="btn btn-ghost show-filters" id="showFilters">Filters</button>
+        </div>
+        <div id="resultsList" class="job-list"></div>
+        <div class="load-more-wrap"><button type="button" class="btn btn-secondary" id="loadMore" hidden>Load more results</button></div>
+      </section>
+
+      <section class="detail" id="detail" aria-label="Job details">
+        <div class="detail-empty">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="24" rx="4"/><path d="M18 14v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3M8 24h32"/></svg>
+          <p>Select a job to see the full posting.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===================== SAVED ===================== -->
+  <main id="view-saved" class="view page" hidden>
+    <div class="page-head">
+      <div>
+        <h1>Saved jobs</h1>
+        <p class="muted">Your shortlist, stored locally in <code>webui/data/saved.json</code>.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="exportSaved">Export CSV</button>
+    </div>
+    <div class="saved-layout">
+      <div id="savedList" class="job-list"></div>
+      <section class="detail" id="savedDetail" aria-label="Job details"></section>
+    </div>
+  </main>
+
+  <!-- ===================== APPLICATIONS ===================== -->
+  <main id="view-applications" class="view page" hidden>
+    <div class="page-head">
+      <div>
+        <h1>Applications</h1>
+        <p class="muted">Read from <code>job_search_tracker.csv</code>, which <code>/apply</code> and <code>/outcome</code> keep up to date.</p>
+      </div>
+    </div>
+    <div id="pipeline" class="pipeline"></div>
+    <div id="trackerTable" class="table-wrap"></div>
+  </main>
+
+  <div class="drawer-backdrop" id="backdrop" hidden></div>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

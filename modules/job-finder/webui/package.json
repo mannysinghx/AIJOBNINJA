@@ -1,0 +1,10 @@
+{
+  "name": "aijobninja-webui",
+  "private": true,
+  "type": "module",
+  "description": "Local web UI for the portal CLIs. No runtime dependencies.",
+  "scripts": {
+    "start": "bun run server.ts",
+    "test": "bun test"
+  }
+}

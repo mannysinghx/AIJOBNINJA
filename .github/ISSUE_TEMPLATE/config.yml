@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "📤 Sharing scan results or automation output?"
+    url: https://github.com/mannysinghx/AIJOBNINJA/blob/main/DATA_CONTRACT.md
+    about: Your scans and reports stay local (data/ + reports/). Please don't file them here, they would be public.
