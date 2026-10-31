@@ -396,6 +396,17 @@ job_upgrade_gate() {
   step "provision: go 1.27, runner user" eval 'add_go "$c" && add_runner "$c" /cache/npm /cache/go' || return
   step "checkout (full history + tags)" seed_src "$c" full runner || return
   step "release tags in the checkout" dx "$c" runner /src "$LINUX_PATH" 'echo "$(git tag --list "aijobninja-v*" | wc -l) aijobninja-v* tags"; git tag --list "aijobninja-v*" | tail -3' || return
+  # Releases are off in this repo (release.yml), so while no release tag exists there is no old
+  # version to upgrade from and the harness cannot run. Ask origin, not the local clone: tags that
+  # were simply never fetched must still fail. Reported as SKIPPED, never as PASS; the first
+  # aijobninja-v* tag makes this job required.
+  local remote_tags
+  remote_tags=$(git -C "$root" ls-remote --tags origin 'aijobninja-v*') || {
+    echo "ci-local: could not list origin's tags, so the upgrade gate cannot be skipped"; return 1; }
+  if [ -z "$remote_tags" ] && [ -z "$(git -C "$root" tag --list 'aijobninja-v*')" ]; then
+    echo "::ci-local skipped no aijobninja-v* release tag on origin or here: nothing to upgrade from"
+    return 0
+  fi
   step "npm install --ignore-scripts" dx "$c" runner /src "$LINUX_PATH" 'npm install --ignore-scripts' || return
   step "Upgrade PR gate (newest old release -> this commit)" dx "$c" runner /src "$LINUX_PATH" 'node upgrade-tests.mjs --pr-gate' || return
   step "Canary (harness must be able to fail)" dx "$c" runner /src "$LINUX_PATH" 'node upgrade-tests.mjs --canary' || return
@@ -545,7 +556,9 @@ counts_of() { # counts_of <job> <log>
       s=$(grep -E '^ *[0-9]+ (passed|failed|flaky|skipped)' "$plain" | sed 's/^ *//;s/ (.*//' | paste -sd ',' - | sed 's/,/, /g')
       [ -z "$s" ] || s="playwright: $s" ;;
     upgrade-gate)
-      s=$(grep -E '^[0-9]+ aijobninja-v' "$plain" | tail -1) ;;
+      s=$(grep -E '^[0-9]+ aijobninja-v' "$plain" | tail -1)
+      r=$(sed -n 's/^::ci-local skipped //p' "$plain" | tail -1)
+      [ -z "$r" ] || s="$r" ;;
     plugin-registry)
       s=$(grep -E 'plugin registry is valid|^registry files changed' "$plain" | sed 's/^[^a-z]* //' | paste -sd ';' - | sed 's/;/; /g') ;;
     no-user-data)
@@ -657,6 +670,7 @@ for j in $jobs; do
     r=$(sed -n 's/^rc=//p' "$work/$j.result"); d=$(sed -n 's/^dur=//p' "$work/$j.result")
   else r=1; d=0; fi
   [ "$r" = 0 ] && res=PASS || { res=FAIL; all_ok=0; }
+  [ "$res" = PASS ] && grep -q '^::ci-local skipped ' "$log" && res=SKIPPED
   c=$(counts_of "$j" "$log")
   rows="$rows$j|$res|$(fmt_dur "$d")|$c"$'\n'
 done

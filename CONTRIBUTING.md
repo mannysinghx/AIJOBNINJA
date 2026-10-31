@@ -170,6 +170,10 @@ Jobs: `test-linux`, `test-macos`, `cv-visual`, `upgrade-gate` (`test.yml`), `web
 (`plugin-registry-validate.yml`) and `no-user-data` (`no-user-data.yml`, run over
 `git diff origin/main...<commit>` instead of the PR API).
 
+`upgrade-gate` reports SKIPPED while `origin` has no `aijobninja-v*` release tag, because there is no
+old version to upgrade from. The first release tag makes it required. If `origin` cannot be reached it
+fails rather than skips.
+
 Not reproduced locally: the Windows leg of `test.yml` (not possible on a Mac),
 CodeQL (`codeql.yml`) and dependency review (`dependency-review.yml`), both GitHub
 services. `release.yml` and Dependabot stay on GitHub.
