@@ -555,7 +555,7 @@ This is a confirmation step, not a replacement for `check-liveness.mjs` — run 
 
 ## CI/CD
 
-- **GitHub Actions** on every PR run the full `test-all.mjs` suite. **Dependabot** watches npm/Go/Actions.
+- **CI runs locally** through `scripts/ci-local.sh` (see "Local CI" in `CONTRIBUTING.md`); the GitHub CI workflows are off and remain the job specification. **Dependabot** watches npm/Go/Actions.
 - **Contributing:** see `CONTRIBUTING.md`. Bugs and questions go to GitHub Issues; security reports go through a private GitHub security advisory (`SECURITY.md`).
 
 ## Headless / Batch Mode

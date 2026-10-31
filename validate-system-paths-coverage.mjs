@@ -101,7 +101,10 @@ const EXCLUDES = [
 const RECONCILED_NOT_CHECKED_OUT = ['.gitignore'];
 
 // Repo-only files: tracked here, deliberately never shipped to an install.
-const REPO_ONLY = [];
+const REPO_ONLY = [
+  // The maintainer's local CI runner: drives this repo's checks, never an install.
+  'scripts/ci-local.sh',
+];
 
 // Trees that live in the repo but deliberately OUTSIDE the updater's world:
 // web/ is the experimental web UI — its own release-please component, never

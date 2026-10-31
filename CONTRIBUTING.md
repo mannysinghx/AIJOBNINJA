@@ -143,6 +143,37 @@ section (syntax, scripts, dashboard, data contract, personal data, paths,
 etc.). A green `--only` run is **not** a green suite — always run the full
 `node test-all.mjs` before pushing.
 
+### Local CI
+
+The GitHub CI workflows are turned off: CI runs on the maintainer's Mac, and the
+files in `.github/workflows/` stay as the job specification.
+
+```bash
+scripts/ci-local.sh                              # every job, on HEAD
+scripts/ci-local.sh <commit>                     # every job, on that commit
+scripts/ci-local.sh --only test-linux,job-finder # just those jobs (no pass record)
+scripts/ci-local.sh --keep                       # leave containers up for inspection
+```
+
+It needs Docker Desktop running and the ARGUS5 volume mounted. It works from a
+clean copy of the commit (`git archive`), never from your working tree, in Linux
+containers, one per workflow job; the macOS leg of `test.yml` runs natively in a
+throwaway directory, with its Node and Go downloaded from nodejs.org and go.dev.
+It only ever runs the commit you name: it never fetches pull-request code.
+
+Each job's log goes to `<git common dir>/ci-local/<sha>.<job>.log`. When every
+job passes and `--only` was not used, `<sha>.pass` is written next to them with
+the commit, the UTC date and each job's result and test counts.
+
+Jobs: `test-linux`, `test-macos`, `cv-visual`, `upgrade-gate` (`test.yml`), `web`
+(`web-ci.yml`), `job-finder` (`job-finder.yml`), `plugin-registry`
+(`plugin-registry-validate.yml`) and `no-user-data` (`no-user-data.yml`, run over
+`git diff origin/main...<commit>` instead of the PR API).
+
+Not reproduced locally: the Windows leg of `test.yml` (not possible on a Mac),
+CodeQL (`codeql.yml`) and dependency review (`dependency-review.yml`), both GitHub
+services. `release.yml` and Dependabot stay on GitHub.
+
 ### Checking translated mode structure
 
 Run `node i18n-drift.mjs --lang tr` (repeat `--lang` for several languages),
